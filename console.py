@@ -4,6 +4,7 @@
 import cmd
 import re
 from shlex import split
+import ast  # Safer than eval()
 from models import storage
 from models.base_model import BaseModel
 from models.user import User
@@ -18,13 +19,17 @@ def parse(arg):
     """Parses the arguments for different command formats."""
     curly_braces = re.search(r"\{(.*?)\}", arg)
     brackets = re.search(r"\[(.*?)\]", arg)
-    if curly_braces:
-        lexer = split(arg[:curly_braces.span()[0]])
-        return [i.strip(",") for i in lexer] + [curly_braces.group()]
-    if brackets:
-        lexer = split(arg[:brackets.span()[0]])
-        return [i.strip(",") for i in lexer] + [brackets.group()]
-    return [i.strip(",") for i in split(arg)]
+    try:
+        if curly_braces:
+            lexer = split(arg[:curly_braces.span()[0]])
+            return [i.strip(",") for i in lexer] + [curly_braces.group()]
+        if brackets:
+            lexer = split(arg[:brackets.span()[0]])
+            return [i.strip(",") for i in lexer] + [brackets.group()]
+        return [i.strip(",") for i in split(arg)]
+    except Exception as e:
+        print(f"Error parsing argument: {e}")
+        return []
 
 
 class HBNBCommand(cmd.Cmd):
@@ -62,16 +67,17 @@ class HBNBCommand(cmd.Cmd):
                 func_name, params = command[:match.span()[0]], match.group(1)
                 if func_name in argdict:
                     return argdict[func_name]("{} {}".format(class_name, params))
-        print("*** Unknown syntax: {}".format(arg))
+        print(f"*** Unknown syntax: {arg}")
         return False
 
     def do_quit(self, arg):
         """Quit command to exit the program."""
+        print("Goodbye!")
         return True
 
     def do_EOF(self, arg):
         """EOF signal to exit the program."""
-        print("")
+        print("\nGoodbye!")
         return True
 
     def do_create(self, arg):
@@ -81,11 +87,11 @@ class HBNBCommand(cmd.Cmd):
                 raise SyntaxError()
             args = arg.split(" ")
             class_name = args[0]
-           kwargs = {
-            k: eval(v.strip('"').replace("_", " ")) if '"' in v 
-            else eval(v) 
-            for k, v in (item.split("=") for item in args[1:])
-        }
+            kwargs = {
+                k: ast.literal_eval(v.strip('"').replace("_", " ")) if '"' in v 
+                else ast.literal_eval(v)
+                for k, v in (item.split("=") for item in args[1:])
+            }
             obj = eval(class_name)(**kwargs) if kwargs else eval(class_name)()
             storage.new(obj)
             print(obj.id)
@@ -94,6 +100,8 @@ class HBNBCommand(cmd.Cmd):
             print("** class name missing **")
         except NameError:
             print("** class doesn't exist **")
+        except Exception as e:
+            print(f"Error: {e}")
 
     def do_show(self, arg):
         """Show the details of a class instance."""
@@ -162,13 +170,19 @@ class HBNBCommand(cmd.Cmd):
             print("** value missing **")
         else:
             obj = objdict["{}.{}".format(args[0], args[1])]
-            if type(eval(args[2])) == dict:
-                for k, v in eval(args[2]).items():
-                    setattr(obj, k, v)
-            else:
-                setattr(obj, args[2], eval(args[3]))
-            storage.save()
+            try:
+                if type(ast.literal_eval(args[2])) == dict:
+                    for k, v in ast.literal_eval(args[2]).items():
+                        setattr(obj, k, v)
+                else:
+                    setattr(obj, args[2], ast.literal_eval(args[3]))
+                storage.save()
+            except Exception as e:
+                print(f"Error: {e}")
 
 
 if __name__ == "__main__":
-    HBNBCommand().cmdloop()
+    try:
+        HBNBCommand().cmdloop()
+    except Exception as e:
+        print(f"Error: {e}")
