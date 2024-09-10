@@ -88,7 +88,7 @@ class HBNBCommand(cmd.Cmd):
             args = arg.split(" ")
             class_name = args[0]
             kwargs = {
-                k: ast.literal_eval(v.strip('"').replace("_", " ")) if '"' in v 
+                k: ast.literal_eval(v.strip('"').replace("_", " ")) if '"' in v
                 else ast.literal_eval(v)
                 for k, v in (item.split("=") for item in args[1:])
             }
