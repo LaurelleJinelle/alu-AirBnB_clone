@@ -22,7 +22,7 @@ class FileStorage:
     def save(self):
         # Serializes the __objects dictionary to the JSON file at __file_path
         # Converts each object to a dictionary using the to_dict() method
-        obj_dict = {key: value.to_dict() for key, 
+        obj_dict = {key: value.to_dict() for key,
                     value in FileStorage.__objects.items()}
         # Writes the serialized data (as JSON) to the file
         with open(FileStorage.__file_path, "w", encoding="utf-8") as f:
@@ -35,7 +35,8 @@ class FileStorage:
                 loaded_dict = load(f)
                 # Reconstruct each object using the class name and data
                 for key, value in loaded_dict.items():
-                    class_name = key.split('.')[0]  # Extract class name from key
+                    class_name = key.split('.')[0]  
+                    # Extract class name from key
                     # Assuming dynamic class instantiation using eval
                     self.__objects[key] = eval(f"{class_name}(**value)")
 
