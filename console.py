@@ -81,10 +81,11 @@ class HBNBCommand(cmd.Cmd):
                 raise SyntaxError()
             args = arg.split(" ")
             class_name = args[0]
-            kwargs = {
-                k: eval(v.strip('"').replace("_", " ")) if '"' in v else eval(v)
-                for k, v in (item.split("=") for item in args[1:])
-            }
+           kwargs = {
+            k: eval(v.strip('"').replace("_", " ")) if '"' in v 
+            else eval(v) 
+            for k, v in (item.split("=") for item in args[1:])
+        }
             obj = eval(class_name)(**kwargs) if kwargs else eval(class_name)()
             storage.new(obj)
             print(obj.id)
