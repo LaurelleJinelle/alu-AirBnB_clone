@@ -35,7 +35,7 @@ class FileStorage:
                 loaded_dict = load(f)
                 # Reconstruct each object using the class name and data
                 for key, value in loaded_dict.items():
-                    class_name = key.split('.')[0] 
+                    class_name = key.split('.')[0]
                     # Extract class name from key
                     # Assuming dynamic class instantiation using eval
                     self.__objects[key] = eval(f"{class_name}(**value)")
