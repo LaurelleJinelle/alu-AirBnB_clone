@@ -3,6 +3,7 @@
 from json import dump, load
 from os.path import exists
 
+
 class FileStorage:
     # Private class attributes for storing file path and objects
     __file_path = "file.json"  # Path to the JSON file used for storage
@@ -21,7 +22,8 @@ class FileStorage:
     def save(self):
         # Serializes the __objects dictionary to the JSON file at __file_path
         # Converts each object to a dictionary using the to_dict() method
-        obj_dict = {key: value.to_dict() for key, value in FileStorage.__objects.items()}
+        obj_dict = {key: value.to_dict() for key, 
+                    value in FileStorage.__objects.items()}
         # Writes the serialized data (as JSON) to the file
         with open(FileStorage.__file_path, "w", encoding="utf-8") as f:
             dump(obj_dict, f)
