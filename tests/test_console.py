@@ -1042,10 +1042,10 @@ class TestPlaceDotNotation(unittest.TestCase):
 
 
 class TestAmenity(unittest.TestCase):
-    """Testing the `amenity` commands.
-    """
+    """Testing the `amenity` commands."""
 
     def setUp(self):
+        """Set up for test cases."""
         pass
 
     def tearDown(self) -> None:
@@ -1055,65 +1055,71 @@ class TestAmenity(unittest.TestCase):
             os.remove(storage._FileStorage__file_path)
 
     def test_create_amenity(self):
-        """Test create amenity object.
-        """
+        """Test create amenity object."""
         with patch('sys.stdout', new=StringIO()) as f:
             HBNBCommand().onecmd('create Amenity')
-            self.assertIsInstance(f.getvalue().strip(), str)
-            self.assertIn("Amenity.{}".format(
-                f.getvalue().strip()), storage.all().keys())
+            amenity_id = f.getvalue().strip()
+            self.assertIsInstance(amenity_id, str)
+            self.assertIn(f"Amenity.{amenity_id}", storage.all().keys())
 
     def test_all_amenity(self):
-        """Test all amenity object.
-        """
+        """Test all amenity object."""
         with patch('sys.stdout', new=StringIO()) as f:
             HBNBCommand().onecmd('all Amenity')
-            for item in json.loads(f.getvalue()):
+            all_amenities = json.loads(f.getvalue())
+            for item in all_amenities:
                 self.assertEqual(item.split()[0], '[Amenity]')
 
     def test_show_amenity(self):
-        """Test show amenity object.
-        """
+        """Test show amenity object."""
         with patch('sys.stdout', new=StringIO()) as f:
             am = Amenity()
             am.eyes = "green"
+            storage.new(am)  # Ensure the object is added to storage
             HBNBCommand().onecmd(f'show Amenity {am.id}')
-            res = f"[{type(am).__name__}] ({am.id}) {am.__dict__}"
-            self.assertEqual(f.getvalue().strip(), res)
+            expected_output = f"[{type(am).__name__}] ({am.id}) {am.__dict__}"
+            self.assertEqual(f.getvalue().strip(), expected_output)
 
     def test_update_amenity(self):
-        """Test update amenity object.
-        """
+        """Test update amenity object."""
+        # Test updating the name
         with patch('sys.stdout', new=StringIO()) as f:
             am = Amenity()
             am.name = "Cecilia"
+            storage.new(am)  # Ensure the object is added to storage
             HBNBCommand().onecmd(f'update Amenity {am.id} name "Ife"')
-            self.assertEqual(am.__dict__["name"], "Ife")
+            updated_am = storage.all()[f"Amenity.{am.id}"]
+            self.assertEqual(updated_am.name, "Ife")
 
+        # Test updating age
         with patch('sys.stdout', new=StringIO()) as f:
             am = Amenity()
             am.age = 75
+            storage.new(am)  # Ensure the object is added to storage
             HBNBCommand().onecmd(f'update Amenity {am.id} age 25')
-            self.assertIn("age", am.__dict__.keys())
-            self.assertEqual(am.__dict__["age"], '25')
+            updated_am = storage.all()[f"Amenity.{am.id}"]
+            self.assertIn("age", updated_am.__dict__.keys())
+            self.assertEqual(updated_am.__dict__["age"], 25)
 
+        # Test invalid update command
         with patch('sys.stdout', new=StringIO()) as f:
             am = Amenity()
             am.age = 60
-            cmmd = f'update Amenity {am.id} age 10 color green)'
+            storage.new(am)  # Ensure the object is added to storage
+            cmmd = f'update Amenity {am.id} age 10 color green'
             HBNBCommand().onecmd(cmmd)
-            self.assertIn("age", am.__dict__.keys())
-            self.assertNotIn("color", am.__dict__.keys())
-            self.assertEqual(am.__dict__["age"], 10)
+            updated_am = storage.all()[f"Amenity.{am.id}"]
+            self.assertIn("age", updated_am.__dict__.keys())
+            self.assertNotIn("color", updated_am.__dict__.keys())
+            self.assertEqual(updated_am.__dict__["age"], 10)
 
     def test_destroy_amenity(self):
-        """Test destroy amenity object.
-        """
+        """Test destroy amenity object."""
         with patch('sys.stdout', new=StringIO()):
             am = Amenity()
+            storage.new(am)  # Ensure the object is added to storage
             HBNBCommand().onecmd(f'destroy Amenity {am.id}')
-            self.assertNotIn("Amenity.{}".format(
-                am.id), storage.all().keys())
+            self.assertNotIn(f"Amenity.{am.id}", storage.all().keys())
 
 
 class TestAmenityDotNotation(unittest.TestCase):
