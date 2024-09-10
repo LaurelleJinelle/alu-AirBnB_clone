@@ -66,7 +66,9 @@ class HBNBCommand(cmd.Cmd):
             if match:
                 func_name, params = command[:match.span()[0]], match.group(1)
                 if func_name in argdict:
-                    return argdict[func_name]("{} {}".format(class_name, params))
+                    return argdict[func_name](
+                        "{} {}".format(class_name, params)
+                    )
         print(f"*** Unknown syntax: {arg}")
         return False
 
