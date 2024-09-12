@@ -38,6 +38,7 @@ class HBNBCommand(cmd.Cmd):
         prompt (str): The command prompt.
     """
 
+    intro = "Welcome to the AirBnB Clone. Type help or ? to list commands.\n"
     prompt = "(hbnb) "
     __classes = {
         "BaseModel",
